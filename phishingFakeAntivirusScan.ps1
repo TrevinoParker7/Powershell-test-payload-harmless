@@ -1,3 +1,15 @@
+# Function to log messages
+function Log-Message {
+    param (
+        [string]$message,
+        [string]$level = "INFO"
+    )
+    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    $logEntry = "$timestamp [$level] $message"
+    $logFile = "C:\ProgramData\phishingLog.txt"
+    Add-Content -Path $logFile -Value $logEntry
+}
+
 # Function to simulate an antivirus scan
 function Simulate-AntivirusScan {
     Write-Host "Starting antivirus scan..."
