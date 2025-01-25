@@ -31,12 +31,6 @@ function Show-FakeUpdatePopUp {
     }
 }
 
-# Log the action
-Log-Message "Displaying simulated fake software update pop-up."
-
-# Show the fake update pop-up
-Show-FakeUpdatePopUp
-
 # Define the log file path for the EICAR test file creation
 $eicarScriptName = "eicar.ps1"
 
@@ -81,3 +75,9 @@ function Create-FakeEicarFile {
     # End logging for EICAR creation
     Log-EicarMessage "EICAR test file creation completed."
 }
+
+# Log the action
+Log-Message "Displaying simulated fake software update pop-up."
+
+# Show the fake update pop-up
+Show-FakeUpdatePopUp
