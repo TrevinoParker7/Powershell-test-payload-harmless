@@ -13,15 +13,20 @@ function Log-Message {
     Add-Content -Path $logFile -Value $logEntry
 }
 
-# Function to show a fake software update alert
+# Function to show a fake software update alert and log the button click
 function Show-FakeUpdatePopUp {
     Add-Type -AssemblyName PresentationFramework
-    [System.Windows.MessageBox]::Show(
+    $result = [System.Windows.MessageBox]::Show(
         "A critical software update is required for your system. Click 'OK' to download and install the update now.",
         "Software Update",
         [System.Windows.MessageBoxButton]::OKCancel,
         [System.Windows.MessageBoxImage]::Warning
     )
+    if ($result -eq [System.Windows.MessageBoxResult]::OK) {
+        Log-Message "User clicked 'OK' on the fake software update pop-up."
+    } else {
+        Log-Message "User clicked 'Cancel' on the fake software update pop-up."
+    }
 }
 
 # Log the action
