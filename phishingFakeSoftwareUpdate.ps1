@@ -29,4 +29,3 @@ Log-Message "Displaying simulated fake software update pop-up."
 
 # Show the fake update pop-up
 Show-FakeUpdatePopUp
-
