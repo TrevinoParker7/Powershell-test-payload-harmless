@@ -1,4 +1,4 @@
-# Function to log messages
+# Define the Log-Message function
 function Log-Message {
     param (
         [string]$message,
@@ -6,7 +6,7 @@ function Log-Message {
     )
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
     $logEntry = "$timestamp [$level] $message"
-    $logFile = "C:\ProgramData\phishingLog.txt"
+    $logFile = "C:\ProgramData\phishingLog.txt"  # Specify the path where the log should be stored
     Add-Content -Path $logFile -Value $logEntry
 }
 
