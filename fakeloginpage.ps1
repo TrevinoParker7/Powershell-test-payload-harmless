@@ -1,3 +1,7 @@
+# Install the Active Directory PowerShell module
+Install-Module -Name ActiveDirectory
+Import-Module -Name ActiveDirectory
+
 # Install fake antivirus
 Start-Process -FilePath 'C:\temp\UltraSecureAntivirus-Pro9000.exe' -ArgumentList '/S' -Wait
 
