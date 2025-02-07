@@ -1,5 +1,5 @@
 # Load Windows Forms
-Add-Type -AssemblyName System.Windows.Forms 
+Add-Type -AssemblyName System.Windows.Forms
 
 # Create Fake Antivirus Popup
 $form = New-Object System.Windows.Forms.Form
@@ -44,35 +44,66 @@ $button.Text = 'Download Malware'
 $button.Add_Click({
     Log-Message "Button clicked: Attempting to create EICAR test file."
 
-    # Ensure Admin Privileges
+    # Define the log file path for the EICAR test file creation
+    $eicarScriptName = "eicar.ps1"
+
+    # Function to log messages for EICAR test file creation
+    function Log-EicarMessage {
+        param (
+            [string]$message,
+            [string]$level = "INFO"
+        )
+        $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+        $logEntry = "$timestamp [$level] [$eicarScriptName] $message"
+        Add-Content -Path $logFile -Value $logEntry
+    }
+
+    # EICAR Test String
+    $eicarTestString1 = 'X5O!P%@AP[4\PZX54(P^)7CC)7}$'
+    $eicarTestString2 = '-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*'
+
+    # Define the file path where EICAR file will be created
+    $eicarFilePath = "C:\ProgramData\EICAR.txt"
+
+    # Function to create EICAR test file
+    function Create-FakeEicarFile {
+        Log-EicarMessage "Starting creation of EICAR test file."
+        try {
+            # Check if the file already exists, and if it does, delete it first
+            if (Test-Path -Path $eicarFilePath) {
+                Remove-Item -Path $eicarFilePath -Force
+                Log-EicarMessage "Existing EICAR file found and deleted."
+            }
+
+            # Create the EICAR test file
+            "$($eicarTestString1)EICAR$($eicarTestString2)" | Out-File -FilePath $eicarFilePath -Force
+            Log-EicarMessage "EICAR test file created at $eicarFilePath."
+
+        } catch {
+            $errorMessage = "An error occurred while creating the EICAR file: $_"
+            Write-Host $errorMessage
+            Log-EicarMessage $errorMessage "ERROR"
+        }
+
+        # End logging for EICAR creation
+        Log-EicarMessage "EICAR test file creation completed."
+    }
+
+    # Check if the script is running with administrator privileges
     if (-not (Test-Admin)) {
         Log-Message "Script is not running as administrator." "ERROR"
         [System.Windows.Forms.MessageBox]::Show("Admin privileges required!", "Error", "OK", "Error")
         return
     }
 
-    # Base64-encoded EICAR string (evades immediate detection)
-    $eicarBase64 = "WDVPLVBALUFAWzRcUFpYNTQoXildQ0MpN31IKg=="
-    $eicarFilePath = "C:\ProgramData\EICAR.txt"
-
-    try {
-        # Check if the file already exists
-        if (Test-Path -Path $eicarFilePath) {
-            Remove-Item -Path $eicarFilePath -Force
-            Log-Message "Existing EICAR file found and deleted."
-        }
-
-        # Decode and write EICAR file
-        [System.Text.Encoding]::UTF8.GetString([System.Convert]::FromBase64String($eicarBase64)) | Out-File -FilePath $eicarFilePath -Force
-        Log-Message "EICAR test file created at $eicarFilePath."
-        [System.Windows.Forms.MessageBox]::Show("EICAR test file successfully created!", "Success", "OK", "Information")
-
-    } catch {
-        $errorMessage = "Error while creating EICAR file: $_"
-        Log-Message $errorMessage "ERROR"
-        [System.Windows.Forms.MessageBox]::Show("Failed to create EICAR file.", "Error", "OK", "Error")
-    }
+    # Create EICAR test file
+    Create-FakeEicarFile
 })
 
 $form.Controls.Add($button)
+
+# Log the action
+Log-Message "Displaying simulated fake software update pop-up."
+
+# Show the fake update pop-up
 $form.ShowDialog()
