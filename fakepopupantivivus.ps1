@@ -16,7 +16,7 @@ $button.Location = New-Object System.Drawing.Point(150,100)
 $button.Size = New-Object System.Drawing.Size(75,23)
 $button.Text = 'Download Malware'
 $button.Add_Click({
-    Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/TrevinoParker7/Powershell-test-payload-harmless/refs/heads/main/eicar.ps1' -OutFile 'C:\temp\eicar.ps1'
+    Invoke-WebRequest -Uri 'Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/TrevinoParker7/Powershell-test-payload-harmless/main/fakepopupantivivus.ps1' -OutFile 'C:\programdata\fakepopupantivivus.ps1'
 })
 $form.Controls.Add($button)
 
