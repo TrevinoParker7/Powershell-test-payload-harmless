@@ -1,11 +1,23 @@
 # Load Windows Forms
 Add-Type -AssemblyName System.Windows.Forms
 
+# Create Fake Antivirus Popup
+$form = New-Object System.Windows.Forms.Form
+$form.Text = 'Anti-Virus Scan'
+$form.Size = New-Object System.Drawing.Size(400,200)
+$form.StartPosition = 'CenterScreen'
+
+# Add Label
+$label = New-Object System.Windows.Forms.Label
+$label.Location = New-Object System.Drawing.Point(10,20)
+$label.Size = New-Object System.Drawing.Size(380,40)
+$label.Text = 'Your PC has been scanned and no viruses were found.'
+$form.Controls.Add($label)
+
 # Logging Setup
 $logFile = "C:\ProgramData\entropygorilla.log"
 $scriptName = "fakepopupantivirus.ps1"
 
-# Function to log messages
 function Log-Message {
     param (
         [string]$message,
@@ -23,10 +35,11 @@ function Test-Admin {
     return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 }
 
-# EICAR Test File Creation Functions
-$eicarScriptName = "eicar.ps1"
+# EICAR Test String
 $eicarTestString1 = 'X5O!P%@AP[4\PZX54(P^)7CC)7}$'
 $eicarTestString2 = '-STANDARD-ANTIVIRUS-TEST-FILE!$H+H*'
+
+# Define the file path where EICAR file will be created
 $eicarFilePath = "C:\ProgramData\EICAR.txt"
 
 # Function to log messages for EICAR test file creation
@@ -36,7 +49,7 @@ function Log-EicarMessage {
         [string]$level = "INFO"
     )
     $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    $logEntry = "$timestamp [$level] [$eicarScriptName] $message"
+    $logEntry = "$timestamp [$level] [eicar.ps1] $message"
     Add-Content -Path $logFile -Value $logEntry
 }
 
@@ -64,19 +77,6 @@ function Create-FakeEicarFile {
     Log-EicarMessage "EICAR test file creation completed."
 }
 
-# Create Fake Antivirus Popup Form
-$form = New-Object System.Windows.Forms.Form
-$form.Text = 'Anti-Virus Scan'
-$form.Size = New-Object System.Drawing.Size(400,200)
-$form.StartPosition = 'CenterScreen'
-
-# Add Label
-$label = New-Object System.Windows.Forms.Label
-$label.Location = New-Object System.Drawing.Point(10,20)
-$label.Size = New-Object System.Drawing.Size(380,40)
-$label.Text = 'Your PC has been scanned and no viruses were found.'
-$form.Controls.Add($label)
-
 # Add Button to Trigger EICAR Test File Download
 $button = New-Object System.Windows.Forms.Button
 $button.Location = New-Object System.Drawing.Point(150,100)
@@ -93,6 +93,9 @@ $button.Add_Click({
         return
     }
 
+    # Log that the EICAR creation is about to be triggered
+    Log-Message "Admin privileges confirmed. Proceeding with EICAR file creation."
+
     # Create EICAR test file
     Create-FakeEicarFile
 })
@@ -100,7 +103,7 @@ $button.Add_Click({
 $form.Controls.Add($button)
 
 # Log the action
-Log-Message "Displaying simulated fake antivirus scan pop-up."
+Log-Message "Displaying simulated fake antivirus pop-up."
 
-# Show the fake antivirus scan pop-up
+# Show the fake antivirus pop-up
 $form.ShowDialog()
