@@ -55,6 +55,7 @@ $eicarFilePath = "C:\ProgramData\EICAR.txt"
 # Function to create EICAR test file
 function Create-FakeEicarFile {
     Log-EicarMessage "Starting creation of EICAR test file."
+
     try {
         # Check if the file already exists, and if it does, delete it first
         if (Test-Path -Path $eicarFilePath) {
@@ -64,8 +65,14 @@ function Create-FakeEicarFile {
 
         # Create the EICAR test file
         "$($eicarTestString1)EICAR$($eicarTestString2)" | Out-File -FilePath $eicarFilePath -Force
-        Log-EicarMessage "EICAR test file created at $eicarFilePath." 
 
+        # Debug log if file is created
+        if (Test-Path $eicarFilePath) {
+            Log-EicarMessage "EICAR test file created successfully at $eicarFilePath."
+        } else {
+            Log-EicarMessage "EICAR test file was not created successfully."
+        }
+        
     } catch {
         $errorMessage = "An error occurred while creating the EICAR file: $_"
         Write-Host $errorMessage
